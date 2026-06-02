@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Daily RRG Posts — @redribbongroup</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: #1c1c1c; color: #fff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+body { padding: 32px 20px; max-width: 720px; margin: 0 auto; }
+.header { padding-bottom: 24px; border-bottom: 0.5px solid rgba(255,255,255,0.15); margin-bottom: 24px; }
+.brand { font-size: 11px; color: #A2182C; font-weight: 900; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 6px; }
+.header h1 { font-size: 28px; font-weight: 900; letter-spacing: -1px; }
+.header .sub { font-size: 14px; color: #97662D; margin-top: 8px; letter-spacing: 1.5px; text-transform: uppercase; }
+.intro { background: #2a2a2a; padding: 18px; border-radius: 12px; margin-bottom: 28px; font-size: 14px; line-height: 1.6; color: #d0d0d0; }
+.intro strong { color: #fff; }
+.section-label { font-size: 11px; color: #97662D; letter-spacing: 3px; text-transform: uppercase; font-weight: 700; margin-bottom: 14px; }
+.day-list { display: flex; flex-direction: column; gap: 10px; }
+.day-card { background: #252525; border: 0.5px solid rgba(255,255,255,0.08); padding: 18px 20px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; text-decoration: none; color: #fff; -webkit-tap-highlight-color: transparent; transition: background 0.15s; }
+.day-card:hover, .day-card:active { background: #303030; }
+.day-card .left .date { font-size: 18px; font-weight: 700; }
+.day-card .left .pillar { font-size: 12px; color: #5DD3D9; letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
+.day-card .right { font-size: 24px; color: #F5C842; }
+.empty { background: #252525; padding: 28px 20px; border-radius: 12px; text-align: center; color: #888; font-size: 14px; line-height: 1.6; }
+.empty strong { color: #fff; display: block; margin-bottom: 8px; font-size: 16px; }
+.footer { margin-top: 40px; text-align: center; font-size: 11px; color: #555; letter-spacing: 2px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="brand">@redribbongroup</div>
+  <h1>Daily Posts</h1>
+  <div class="sub">Canada Real Estate Intelligence</div>
+</div>
+
+<div class="intro">
+  <strong>How to use this page.</strong>
+  Each day below opens a gallery with the day's 7-slide carousel. From the gallery you can download the full PDF, download all PNGs as a ZIP, or copy the caption to paste into Instagram. Forward any day's URL to Matt or anyone reviewing the post.
+</div>
+
+<div class="section-label">Daily Carousels</div>
+
+<div id="day-list" class="day-list">
+  <div class="empty">
+    <strong>No carousels published yet</strong>
+    The first daily carousel will appear here automatically each morning at 6 AM Mountain Time.
+  </div>
+</div>
+
+<div class="footer">@redribbongroup · daily Canada real estate intelligence</div>
+
+<script>
+// Auto-discover all daily folders from the repo via GitHub API.
+// Renders one card per day, newest first. If the API call fails (rate limit, offline),
+// falls back to manual entries listed below.
+(async function() {
+  const dayList = document.getElementById('day-list');
+  const apiUrl = 'https://api.github.com/repos/fmtvvlb/Daily-RRG-Posts/contents/docs';
+
+  try {
+    const res = await fetch(apiUrl);
+    if (!res.ok) return;
+    const items = await res.json();
+    const dayFolders = items
+      .filter(item => item.type === 'dir' && /^\d{4}-\d{2}-\d{2}$/.test(item.name))
+      .map(item => item.name)
+      .sort()
+      .reverse();
+
+    if (dayFolders.length === 0) return;
+
+    dayList.innerHTML = '';
+    for (const date of dayFolders) {
+      const dateObj = new Date(date + 'T00:00:00');
+      const formatted = dateObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+
+      // Try to fetch metadata to display pillar / topic.
+      // If no metadata file, just show the date.
+      let pillarText = '';
+      try {
+        const metaRes = await fetch(`${date}/meta.json`);
+        if (metaRes.ok) {
+          const meta = await metaRes.json();
+          pillarText = `${meta.pillar || ''}${meta.topic ? ' · ' + meta.topic : ''}`;
+        }
+      } catch (e) {}
+
+      const card = document.createElement('a');
+      card.href = `${date}/viewer.html`;
+      card.className = 'day-card';
+      card.innerHTML = `
+        <div class="left">
+          <div class="date">${formatted}</div>
+          ${pillarText ? `<div class="pillar">${pillarText}</div>` : ''}
+        </div>
+        <div class="right">→</div>
+      `;
+      dayList.appendChild(card);
+    }
+  } catch (e) {
+    // Silent — keep the "no carousels yet" empty state.
+  }
+})();
+</script>
+
+</body>
+</html>
