@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RRG Carousel — 2026-06-06</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #1c1c1c; color: #fff; padding: 20px; max-width: 700px; margin: 0 auto; }
+.header { margin-bottom: 20px; }
+.header h1 { font-size: 24px; font-weight: 900; letter-spacing: -1px; }
+.header .meta { font-size: 13px; color: #97662D; margin-top: 6px; letter-spacing: 1.5px; text-transform: uppercase; }
+.actions { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+.btn { padding: 16px 20px; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.btn-primary { background: #A2182C; color: #fff; }
+.btn-primary:active { background: #791818; }
+.btn-secondary { background: #97662D; color: #fff; }
+.btn-secondary:active { background: #6e4a20; }
+.slides { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.slide-card { aspect-ratio: 4/5; background: #0F0F0F; border-radius: 10px; overflow: hidden; position: relative; }
+.slide-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.slide-card .num { position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.6); color: #F5C842; font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 4px; }
+.slide-card a.dl { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.75); color: #fff; padding: 6px 12px; font-size: 12px; font-weight: 700; border-radius: 6px; text-decoration: none; }
+.caption-box { background: #2a2a2a; padding: 16px; border-radius: 12px; margin-top: 24px; }
+.caption-box h3 { font-size: 13px; color: #97662D; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
+.caption-box pre { white-space: pre-wrap; word-wrap: break-word; font-family: inherit; font-size: 14px; line-height: 1.6; color: #e0e0e0; margin: 0; }
+.footer { text-align: center; margin-top: 24px; font-size: 12px; color: #555; letter-spacing: 1px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>RRG Carousel</h1>
+  <div class="meta">B — Calgary Pulse · 2026-06-06</div>
+</div>
+
+<div class="actions">
+  <button class="btn btn-primary" onclick="downloadAll()">Download all 7 slides (ZIP)</button>
+  <button class="btn btn-secondary" onclick="copyCaption()" id="copyBtn">Copy caption</button>
+</div>
+
+<div class="slides">
+  <div class="slide-card"><span class="num">1/7</span><img src="slide_1.png" alt="Slide 1"><a class="dl" href="slide_1.png" download="slide_1.png">Save</a></div>
+  <div class="slide-card"><span class="num">2/7</span><img src="slide_2.png" alt="Slide 2"><a class="dl" href="slide_2.png" download="slide_2.png">Save</a></div>
+  <div class="slide-card"><span class="num">3/7</span><img src="slide_3.png" alt="Slide 3"><a class="dl" href="slide_3.png" download="slide_3.png">Save</a></div>
+  <div class="slide-card"><span class="num">4/7</span><img src="slide_4.png" alt="Slide 4"><a class="dl" href="slide_4.png" download="slide_4.png">Save</a></div>
+  <div class="slide-card"><span class="num">5/7</span><img src="slide_5.png" alt="Slide 5"><a class="dl" href="slide_5.png" download="slide_5.png">Save</a></div>
+  <div class="slide-card"><span class="num">6/7</span><img src="slide_6.png" alt="Slide 6"><a class="dl" href="slide_6.png" download="slide_6.png">Save</a></div>
+  <div class="slide-card"><span class="num">7/7</span><img src="slide_7.png" alt="Slide 7"><a class="dl" href="slide_7.png" download="slide_7.png">Save</a></div>
+</div>
+
+<div class="caption-box">
+  <h3>Caption (paste to IG)</h3>
+  <pre id="caption">Calgary home prices fell in all eight districts in May 2026.
+
+The city benchmark was $570,500, down 3.0 percent year over year. The West district held strongest at $726,600, down just 0.5 percent. The North East saw the steepest drop at $467,800, down 7.5 percent. The widest gap in the city now runs $325,800, from the West down to the East at $400,800.
+
+Source: CREB — May 2026 City of Calgary Monthly Statistics — June 1, 2026
+
+Save this post for your records.
+
+#CalgaryRealEstate #YYC #CalgaryHomes #CREB #AlbertaRealEstate</pre>
+</div>
+
+<div class="footer">@redribbongroup · daily Canada real estate intelligence</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+<script>
+async function downloadAll() {
+  const btn = event.target;
+  const original = btn.textContent;
+  btn.textContent = 'Packaging...';
+  btn.disabled = true;
+  try {
+    const zip = new JSZip();
+    const folder = zip.folder('RRG_Carousel_2026-06-06');
+    for (let i = 1; i <= 7; i++) {
+      const response = await fetch('slide_' + i + '.png');
+      if (!response.ok) throw new Error('Slide ' + i + ' missing');
+      const blob = await response.blob();
+      folder.file('slide_' + i + '.png', blob);
+    }
+    const content = await zip.generateAsync({type: 'blob'});
+    saveAs(content, 'RRG_Carousel_2026-06-06.zip');
+    btn.textContent = 'Downloaded';
+    setTimeout(() => { btn.textContent = original; btn.disabled = false; }, 2000);
+  } catch (e) {
+    btn.textContent = 'Error — try Save buttons';
+    setTimeout(() => { btn.textContent = original; btn.disabled = false; }, 3000);
+  }
+}
+function copyCaption() {
+  const text = document.getElementById('caption').textContent;
+  const btn = document.getElementById('copyBtn');
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy caption', 1800);
+  });
+}
+</script>
+
+</body>
+</html>
